@@ -1,10 +1,10 @@
-import { Client } from "@notionhq/client";
-import { getEnv } from "../plugins/env";
+import { Client } from '@notionhq/client';
+import { getEnv } from '../plugins/env';
 
-export async function createNotionTask(title: string, extra?: { url?: string; source?: string; }) {
+export async function createNotionTask(title: string, extra?: { url?: string; source?: string }) {
   const env = getEnv();
   if (!env.NOTION_TOKEN || !env.NOTION_INBOX_DB) {
-    throw new Error("Notion is not configured");
+    throw new Error('Notion is not configured');
   }
   const notion = new Client({ auth: env.NOTION_TOKEN });
   await notion.pages.create({
@@ -13,8 +13,6 @@ export async function createNotionTask(title: string, extra?: { url?: string; so
       Name: { title: [{ text: { content: title.slice(0, 200) } }] },
       Source: extra?.source ? { rich_text: [{ text: { content: extra.source } }] } : undefined,
       Link: extra?.url ? { url: extra.url } : undefined,
-    } as any,
+    } as Record<string, unknown>,
   });
 }
-
-

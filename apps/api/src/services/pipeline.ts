@@ -1,5 +1,5 @@
-import { PrismaClient, OutboxStatus, OutboxType, Source } from "@prisma/client";
-import { classifyEvent } from "./classify";
+import { PrismaClient, OutboxStatus, OutboxType } from '@prisma/client';
+import { classifyEvent } from './classify';
 
 export async function processEvent(prisma: PrismaClient, eventId: string) {
   const ev = await prisma.event.findUnique({ where: { id: eventId }, include: { thread: true } });
@@ -9,7 +9,7 @@ export async function processEvent(prisma: PrismaClient, eventId: string) {
     source: ev.source,
     authorId: ev.authorId,
     authorName: ev.authorName,
-    text: ev.text ?? "",
+    text: ev.text ?? '',
     mentions: ev.mentions,
     isDM: ev.isDM,
   });
@@ -24,19 +24,19 @@ export async function processEvent(prisma: PrismaClient, eventId: string) {
   });
 
   // Решение об экшенах
-  const actions: { type: OutboxType; payload: any }[] = [];
+  const actions: { type: OutboxType; payload: Record<string, unknown> }[] = [];
 
-  if (cls.intent === "TOP_PING") {
+  if (cls.intent === 'TOP_PING') {
     actions.push({
       type: OutboxType.TELEGRAM_NOTIFY,
       payload: {
-        title: "Message from TOP",
-        text: truncate(`${ev.authorName ?? ev.authorId ?? "Unknown"}: ${ev.text ?? ""}`, 1000),
+        title: 'Message from TOP',
+        text: truncate(`${ev.authorName ?? ev.authorId ?? 'Unknown'}: ${ev.text ?? ''}`, 1000),
       },
     });
   }
 
-  if (cls.intent === "MENTION" || cls.intent === "DM") {
+  if (cls.intent === 'MENTION' || cls.intent === 'DM') {
     actions.push({
       type: OutboxType.NOTION_TASK,
       payload: {
@@ -50,7 +50,7 @@ export async function processEvent(prisma: PrismaClient, eventId: string) {
 
   if (actions.length) {
     await prisma.$transaction(
-      actions.map(a =>
+      actions.map((a) =>
         prisma.outbox.create({
           data: {
             type: a.type,
@@ -59,8 +59,8 @@ export async function processEvent(prisma: PrismaClient, eventId: string) {
             threadId: ev.threadId,
             relatedEventId: ev.id,
           },
-        })
-      )
+        }),
+      ),
     );
   }
 
@@ -80,12 +80,10 @@ export async function processEvent(prisma: PrismaClient, eventId: string) {
 }
 
 function buildTaskTitle(ev: { text?: string | null }) {
-  const t = (ev.text ?? "").trim();
-  return t ? `Reply: ${truncate(t, 120)}` : "Reply";
+  const t = (ev.text ?? '').trim();
+  return t ? `Reply: ${truncate(t, 120)}` : 'Reply';
 }
 
 function truncate(s: string, n: number) {
-  return s.length > n ? s.slice(0, n - 1) + "…" : s;
+  return s.length > n ? s.slice(0, n - 1) + '…' : s;
 }
-
-
