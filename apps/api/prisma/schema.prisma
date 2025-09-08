@@ -7,6 +7,114 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Source {
+  TEAMS
+  OUTLOOK
+  CALENDAR
+}
+
+enum OutboxType {
+  TELEGRAM_NOTIFY
+  NOTION_TASK
+  EMAIL_DRAFT
+  CALENDAR_PROPOSAL
+}
+
+enum OutboxStatus {
+  PENDING
+  CONFIRMED
+  SENT
+  FAILED
+  CANCELED
+}
+
+model Thread {
+  id                   String        @id @default(cuid())
+  source               Source
+  externalId           String
+  title                String?
+  participants         Json?
+  lastSummaryMd        String?
+  lastSummaryUpdatedAt DateTime?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+
+  events        Event[]
+  dailyDigests  DailyDigest[]
+  lastSeen      LastSeen?
+  outbox        Outbox[]
+
+  @@unique([source, externalId])
+}
+
+model Event {
+  id          String   @id @default(cuid())
+  threadId    String
+  thread      Thread   @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  source      Source
+  externalId  String
+  ts          DateTime
+  authorId    String?
+  authorName  String?
+  text        String?
+  mentions    String[]
+  isDM        Boolean  @default(false)
+  raw         Json?
+  analysis    Json?
+  salesSignal Boolean  @default(false)
+  isFromTop   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  outbox      Outbox[] @relation("EventToOutbox")
+
+  @@unique([source, externalId])
+  @@index([threadId, ts])
+}
+
+model DailyDigest {
+  id         String   @id @default(cuid())
+  threadId   String
+  thread     Thread   @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  date       DateTime
+  contentMd  String
+  createdAt  DateTime @default(now())
+
+  @@unique([threadId, date])
+}
+
+model Outbox {
+  id              String        @id @default(cuid())
+  type            OutboxType
+  status          OutboxStatus  @default(PENDING)
+  payload         Json
+  error           String?
+  relatedEventId  String?
+  relatedEvent    Event?        @relation(name: "EventToOutbox", fields: [relatedEventId], references: [id])
+  threadId        String?
+  thread          Thread?       @relation(fields: [threadId], references: [id])
+  createdAt       DateTime      @default(now())
+  sentAt          DateTime?
+  confirmedAt     DateTime?
+}
+
+model ConfigTop {
+  id        String   @id @default(cuid())
+  source    Source
+  identity  String   // email, UPN, userId и т.д.
+  name      String?
+  createdAt DateTime @default(now())
+
+  @@unique([source, identity])
+}
+
+model LastSeen {
+  id            String   @id @default(cuid())
+  threadId      String   @unique
+  thread        Thread   @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  lastExternalId String?
+  lastTs        DateTime?
+  updatedAt     DateTime @updatedAt
+}
+
 model Todo {
   id        String   @id @default(cuid())
   title     String

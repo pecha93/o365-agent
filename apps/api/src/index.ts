@@ -1,18 +1,43 @@
-import Fastify from 'fastify';
-import { PrismaClient } from '@prisma/client';
+import Fastify from "fastify";
+import corsPlugin from "./plugins/cors";
+import prismaPlugin from "./plugins/prisma";
+import rawPlugin from "./plugins/raw";
+import { healthRoutes } from "./routes/health";
+import { todoRoutes } from "./routes/todos";
+import { ingestRoutes } from "./routes/ingest";
+import { configTopRoutes } from "./routes/config-top";
+import { getEnv } from "./plugins/env";
+import { startCron } from "./services/cron";
 
-const app = Fastify({ logger: true });
-const prisma = new PrismaClient();
+const env = getEnv();
 
-app.get('/health', async () => ({ ok: true }));
-app.get('/todos', async () => prisma.todo.findMany());
-app.post('/todos', async (req) => {
-  const body = (req as any).body as { title?: string };
-  if (!body?.title) return { error: 'title is required' } as const;
-  return prisma.todo.create({ data: { title: body.title } });
+const app = Fastify({
+  logger: {
+    level: "info",
+    transport: env.NODE_ENV === "development" ? { target: "pino-pretty" } : undefined,
+  },
 });
 
-const port = Number(process.env.PORT || 4000);
-app.listen({ port, host: '0.0.0.0' })
-  .then(() => app.log.info(`API listening on http://localhost:${port}`))
-  .catch((err) => { app.log.error(err); process.exit(1); });
+async function start() {
+  await app.register(rawPlugin);
+  await app.register(corsPlugin);
+  await app.register(prismaPlugin);
+
+  await app.register(healthRoutes);
+  await app.register(todoRoutes);
+  await app.register(ingestRoutes);
+  await app.register(configTopRoutes);
+
+  // Запускаем планировщик
+  startCron(app.prisma);
+
+  try {
+    await app.listen({ port: env.PORT, host: "0.0.0.0" });
+    app.log.info(`API listening on :${env.PORT}`);
+  } catch (err) {
+    app.log.error(err);
+    process.exit(1);
+  }
+}
+
+start();
