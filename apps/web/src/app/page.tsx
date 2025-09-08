@@ -1,4 +1,3 @@
-
 'use client';
 import { useEffect, useState } from 'react';
 
@@ -22,18 +21,24 @@ export default function Page() {
     setTitle('');
     load();
   }
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+  }, []);
 
   return (
     <main style={{ padding: 24 }}>
       <h1>Todos</h1>
       <div style={{ display: 'flex', gap: 8 }}>
-        <input value={title} onChange={e => setTitle(e.target.value)} placeholder="New todo" />
+        <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="New todo" />
         <button onClick={add}>Add</button>
       </div>
       <ul>
-        {todos.map(t => <li key={t.id}>{t.title}</li>)}
+        {todos.map((t) => (
+          <li key={t.id}>{t.title}</li>
+        ))}
       </ul>
     </main>
   );
 }
+// touch
+// lint check
