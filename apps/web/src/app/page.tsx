@@ -61,6 +61,12 @@ export default function Page() {
     <main style={{ maxWidth: 640, margin: '40px auto', padding: 16 }}>
       <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 16 }}>Todos</h1>
 
+      <div style={{ marginBottom: 16 }}>
+        <a href="/agent" style={{ color: '#0066cc', textDecoration: 'underline' }}>
+          → Agent Dashboard
+        </a>
+      </div>
+
       <form onSubmit={addTodo} style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
         <input
           value={title}
