@@ -24,6 +24,24 @@ export default function AgentDashboard() {
   const [events, setEvents] = useState<Record<string, unknown>[]>([]);
   const [digest, setDigest] = useState<Record<string, unknown> | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  const [q, setQ] = useState('');
+  const [status, setStatus] = useState<string>('');
+
+  function filteredThreads() {
+    return threads.filter((t) => (t.title || t.id).toLowerCase().includes(q.toLowerCase()));
+  }
+
+  async function applyOutboxFilter() {
+    try {
+      const url = `${API}/admin/outbox${status ? `?status=${status}` : ''}`;
+      const response = await fetch(url);
+      const data = await response.json();
+      setOutbox(data);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setErr(msg || 'filter failed');
+    }
+  }
 
   async function load() {
     setErr(null);
@@ -73,10 +91,43 @@ export default function AgentDashboard() {
         gridTemplateColumns: '1fr 2fr',
       }}
     >
+      {/* Панель фильтров */}
+      <section style={{ gridColumn: '1 / span 2', display: 'flex', gap: 8, alignItems: 'center' }}>
+        <input
+          placeholder="Search threads..."
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          style={{ flex: 1, padding: 8, border: '1px solid #ccc', borderRadius: 4 }}
+        />
+        <select
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+          style={{ padding: 8, border: '1px solid #ccc', borderRadius: 4 }}
+        >
+          <option value="">Outbox: ALL</option>
+          <option value="PENDING">PENDING</option>
+          <option value="SENT">SENT</option>
+          <option value="FAILED">FAILED</option>
+        </select>
+        <button
+          onClick={applyOutboxFilter}
+          style={{
+            padding: 8,
+            backgroundColor: '#0078d4',
+            color: 'white',
+            border: 'none',
+            borderRadius: 4,
+            cursor: 'pointer',
+          }}
+        >
+          Apply
+        </button>
+      </section>
+
       <section>
         <h2>Threads</h2>
         <ul style={{ display: 'grid', gap: 8 }}>
-          {threads.map((t) => (
+          {filteredThreads().map((t) => (
             <li
               key={t.id}
               style={{ border: '1px solid #eee', borderRadius: 8, padding: 12, cursor: 'pointer' }}
