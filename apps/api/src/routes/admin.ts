@@ -1,4 +1,6 @@
 import { FastifyInstance } from 'fastify';
+import { pullOutlookInbox } from '../services/connectors/outlook';
+import { pullTodayCalendar } from '../services/connectors/calendar';
 
 export async function adminRoutes(app: FastifyInstance) {
   // Outbox list
@@ -50,5 +52,16 @@ export async function adminRoutes(app: FastifyInstance) {
       orderBy: { date: 'desc' },
     });
     return last ?? { contentMd: '(no digest yet)' };
+  });
+
+  // Manual triggers
+  app.post('/admin/pull/outlook', async () => {
+    await pullOutlookInbox(app.prisma);
+    return { ok: true };
+  });
+
+  app.post('/admin/pull/calendar', async () => {
+    await pullTodayCalendar(app.prisma);
+    return { ok: true };
   });
 }

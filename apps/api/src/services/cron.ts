@@ -3,6 +3,8 @@ import { PrismaClient } from '@prisma/client';
 import { buildDailyDigests } from './digest';
 import { dispatchPending } from './outbox';
 import { batchMentions } from './mentions-batch';
+import { pullOutlookInbox } from './connectors/outlook';
+import { pullTodayCalendar } from './connectors/calendar';
 import { getEnv } from '../plugins/env';
 
 export function startCron(prisma: PrismaClient) {
@@ -17,7 +19,33 @@ export function startCron(prisma: PrismaClient) {
     { timezone: TZ },
   );
 
-  // Daily digests — каждый день в 07:00
+  // Outlook: каждые 2 минуты
+  cron.schedule(
+    '*/2 * * * *',
+    async () => {
+      try {
+        await pullOutlookInbox(prisma);
+      } catch (e) {
+        console.error(e);
+      }
+    },
+    { timezone: TZ },
+  );
+
+  // Calendar: раз в 30 минут
+  cron.schedule(
+    '*/30 * * * *',
+    async () => {
+      try {
+        await pullTodayCalendar(prisma);
+      } catch (e) {
+        console.error(e);
+      }
+    },
+    { timezone: TZ },
+  );
+
+  // Daily digests — 07:00
   cron.schedule(
     '0 7 * * *',
     async () => {
@@ -26,7 +54,7 @@ export function startCron(prisma: PrismaClient) {
     { timezone: TZ },
   );
 
-  // Mentions batching — каждые 30 минут
+  // Mentions batch — каждые 30 минут
   cron.schedule(
     '*/30 * * * *',
     async () => {

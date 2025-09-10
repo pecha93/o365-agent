@@ -8,6 +8,7 @@ import { ingestRoutes } from './routes/ingest';
 import { configTopRoutes } from './routes/config-top';
 import { adminRoutes } from './routes/admin';
 import { secretsRoutes } from './routes/secrets';
+import { authMsRoutes } from './routes/auth-ms';
 import { getEnv } from './plugins/env';
 import { startCron } from './services/cron';
 
@@ -31,6 +32,7 @@ async function start() {
   await app.register(configTopRoutes);
   await app.register(adminRoutes);
   await app.register(secretsRoutes);
+  await app.register(authMsRoutes);
 
   // Запускаем планировщик
   startCron(app.prisma);
