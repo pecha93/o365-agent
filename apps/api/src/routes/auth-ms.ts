@@ -12,16 +12,38 @@ export async function authMsRoutes(app: FastifyInstance) {
       scopes,
       redirectUri: env.MS_REDIRECT_URI,
     };
+
+    console.log('Generating OAuth URL with parameters:', {
+      scopes,
+      redirectUri: env.MS_REDIRECT_URI,
+    });
+
     const authCodeUrl = await msal.getAuthCodeUrl(authCodeUrlParameters);
+    console.log('Generated OAuth URL:', authCodeUrl);
+
     reply.redirect(authCodeUrl);
   });
 
   app.get('/auth/ms/callback', async (req, reply) => {
+    console.log('OAuth callback received:', {
+      query: req.query,
+      url: req.url,
+      headers: req.headers,
+    });
+
     const env = getEnv();
     const msal = await getMsalApp(app.prisma);
     const scopes = await getScopes(app.prisma);
     const code = (req.query as Record<string, unknown>).code as string;
-    if (!code) return reply.code(400).send({ error: 'Missing code' });
+
+    if (!code) {
+      console.error('Missing code in callback:', req.query);
+      return reply.code(400).send({
+        error: 'Missing code',
+        receivedQuery: req.query,
+        expectedFormat: '?code=...&state=...',
+      });
+    }
 
     const tokenRequest = {
       code,
