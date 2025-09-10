@@ -6,9 +6,10 @@ import { encrypt } from '../utils/crypto';
 export async function authMsRoutes(app: FastifyInstance) {
   app.get('/auth/ms/login', async (req, reply) => {
     const env = getEnv();
-    const msal = getMsalApp();
+    const msal = await getMsalApp(app.prisma);
+    const scopes = await getScopes(app.prisma);
     const authCodeUrlParameters = {
-      scopes: getScopes(),
+      scopes,
       redirectUri: env.MS_REDIRECT_URI,
     };
     const authCodeUrl = await msal.getAuthCodeUrl(authCodeUrlParameters);
@@ -17,13 +18,14 @@ export async function authMsRoutes(app: FastifyInstance) {
 
   app.get('/auth/ms/callback', async (req, reply) => {
     const env = getEnv();
-    const msal = getMsalApp();
+    const msal = await getMsalApp(app.prisma);
+    const scopes = await getScopes(app.prisma);
     const code = (req.query as Record<string, unknown>).code as string;
     if (!code) return reply.code(400).send({ error: 'Missing code' });
 
     const tokenRequest = {
       code,
-      scopes: getScopes(),
+      scopes,
       redirectUri: env.MS_REDIRECT_URI,
     };
     const token = await msal.acquireTokenByCode(tokenRequest);

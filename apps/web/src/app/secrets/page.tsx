@@ -131,6 +131,7 @@ export default function SecretsPage() {
     'MS_CLIENT_SECRET',
     'MS_APP_ID',
     'MS_APP_SECRET',
+    'MS_SCOPES',
   ];
 
   return (

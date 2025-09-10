@@ -13,6 +13,9 @@ export async function getEnvWithSecrets(prisma: PrismaClient) {
   const msTenantId = await getSecret(prisma, userId, 'MS_TENANT_ID');
   const msClientId = await getSecret(prisma, userId, 'MS_CLIENT_ID');
   const msClientSecret = await getSecret(prisma, userId, 'MS_CLIENT_SECRET');
+  const msAppId = await getSecret(prisma, userId, 'MS_APP_ID');
+  const msAppSecret = await getSecret(prisma, userId, 'MS_APP_SECRET');
+  const msScopes = await getSecret(prisma, userId, 'MS_SCOPES');
 
   return {
     TELEGRAM_BOT_TOKEN: telegramBotToken,
@@ -23,5 +26,8 @@ export async function getEnvWithSecrets(prisma: PrismaClient) {
     MS_TENANT_ID: msTenantId,
     MS_CLIENT_ID: msClientId,
     MS_CLIENT_SECRET: msClientSecret,
+    MS_APP_ID: msAppId,
+    MS_APP_SECRET: msAppSecret,
+    MS_SCOPES: msScopes,
   };
 }

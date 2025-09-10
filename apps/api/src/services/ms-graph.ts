@@ -16,10 +16,11 @@ export async function getAccessToken(prisma: PrismaClient) {
 
   // обновление по refreshToken
   const refreshToken = decrypt(acc.refreshTokenEnc, env.ENCRYPTION_KEY);
-  const msal = getMsalApp();
+  const msal = await getMsalApp(prisma);
+  const scopes = await getScopes(prisma);
   const refreshTokenRequest = {
     refreshToken,
-    scopes: getScopes(),
+    scopes,
   };
   const resp = await msal.acquireTokenByRefreshToken(refreshTokenRequest);
 
