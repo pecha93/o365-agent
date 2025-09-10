@@ -1,12 +1,12 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 const envSchema = z.object({
-  NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
+  NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.coerce.number().int().positive().default(4000),
-  DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
+  DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
 
   // Безопасность вебхуков
-  INGEST_HMAC_SECRET: z.string().default("change-me-dev"),
+  INGEST_HMAC_SECRET: z.string().default('change-me-dev'),
 
   // Интеграции
   OPENAI_API_KEY: z.string().optional(),
@@ -23,7 +23,10 @@ const envSchema = z.object({
   MS_CLIENT_SECRET: z.string().optional(),
 
   // Таймзона для кронов
-  TZ: z.string().default("Asia/Nicosia"),
+  TZ: z.string().default('Asia/Nicosia'),
+
+  // Режим отправки
+  SENDER_MODE: z.enum(['LOG', 'REAL']).default('LOG'),
 });
 
 export type Env = z.infer<typeof envSchema>;
@@ -31,10 +34,8 @@ export type Env = z.infer<typeof envSchema>;
 export function getEnv(raw = process.env): Env {
   const parsed = envSchema.safeParse(raw);
   if (!parsed.success) {
-    console.error("❌ Invalid environment:", parsed.error.flatten().fieldErrors);
+    console.error('❌ Invalid environment:', parsed.error.flatten().fieldErrors);
     process.exit(1);
   }
   return parsed.data;
 }
-
-

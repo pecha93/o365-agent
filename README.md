@@ -1,29 +1,34 @@
 ### Local dev
 
-1) DB
+1. DB
+
 ```bash
 docker compose -f docker-compose.dev.yml up -d
 ```
 
-2) Env
+2. Env
+
 ```bash
 cp .env.example .env.development
 cp .env.development apps/api/.env
 ```
 
-3) deps
+3. deps
+
 ```bash
 pnpm i -w
 ```
 
-4) Prisma
+4. Prisma
+
 ```bash
 pnpm db:generate
 pnpm db:migrate:dev
 pnpm -C apps/api prisma:seed   # optional
 ```
 
-5) Run
+5. Run
+
 ```bash
 pnpm dev
 # API: http://localhost:4000/health
@@ -31,6 +36,7 @@ pnpm dev
 ```
 
 ### .env.example (скопируйте в `.env.development`, затем в `apps/api/.env`)
+
 ```
 # DB
 DATABASE_URL="postgresql://app:app@localhost:5432/app?schema=public"
@@ -60,6 +66,7 @@ MS_CLIENT_SECRET=
 
 # Cron TZ
 TZ=Asia/Nicosia
+
+# Sender mode
+SENDER_MODE=LOG   # LOG|REAL
 ```
-
-
