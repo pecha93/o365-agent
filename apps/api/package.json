@@ -12,7 +12,10 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate:dev": "prisma migrate dev",
     "prisma:migrate:deploy": "prisma migrate deploy",
-    "prisma:studio": "prisma studio"
+    "prisma:studio": "prisma studio",
+    "push:teams": "tsx scripts/push.ts teams",
+    "push:outlook": "tsx scripts/push.ts outlook",
+    "push:calendar": "tsx scripts/push.ts calendar"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
