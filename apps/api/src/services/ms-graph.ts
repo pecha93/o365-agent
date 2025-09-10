@@ -9,8 +9,8 @@ export async function getAccessToken(prisma: PrismaClient) {
   const acc = await prisma.msAccount.findFirst({ orderBy: { updatedAt: 'desc' } });
   if (!acc) throw new Error('No MS account linked');
 
-  // простая проверка протухания
-  if (acc.expiresAt.getTime() - Date.now() > 60_000) {
+  // простая проверка протухания (увеличиваем буфер до 5 минут)
+  if (acc.expiresAt.getTime() - Date.now() > 300_000) {
     return decrypt(acc.accessTokenEnc, env.ENCRYPTION_KEY);
   }
 
