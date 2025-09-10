@@ -27,10 +27,10 @@ export async function getMsalApp(prisma: PrismaClient) {
     );
   }
 
-  // Если нет TENANT_ID, используем common для multi-tenant
+  // Если нет TENANT_ID, используем organizations для multi-tenant (совместимо с single-tenant)
   const authority = env.MS_TENANT_ID
     ? `https://login.microsoftonline.com/${env.MS_TENANT_ID}`
-    : 'https://login.microsoftonline.com/common';
+    : 'https://login.microsoftonline.com/organizations';
 
   console.log('MSAL Configuration:', {
     clientId: clientId.substring(0, 8) + '...',

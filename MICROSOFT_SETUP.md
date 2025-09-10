@@ -4,18 +4,23 @@
 
 Если у вас есть только `APP_ID` и `APP_SECRET`:
 
-1. **Добавьте секреты в веб-интерфейсе:**
+1. **Найдите ваш Tenant ID:**
+   - В Azure Portal → App registrations → ваше приложение
+   - Скопируйте "Directory (tenant) ID" из Overview
+
+2. **Добавьте секреты в веб-интерфейсе:**
    - Откройте http://localhost:3000/secrets
    - Добавьте:
      - `MS_APP_ID` = ваш Application (client) ID
      - `MS_APP_SECRET` = ваш Application (client) secret
+     - `MS_TENANT_ID` = ваш Directory (tenant) ID
 
-2. **Настройте Redirect URI в Azure:**
+3. **Настройте Redirect URI в Azure:**
    - В Azure Portal → App registrations → ваше приложение
    - Authentication → Redirect URIs
    - Добавьте: `http://localhost:4000/auth/ms/callback`
 
-3. **Настройте API permissions:**
+4. **Настройте API permissions:**
    - API permissions → Add a permission
    - Microsoft Graph → Delegated permissions
    - Добавьте: `Mail.ReadWrite`, `Mail.Send`, `Calendars.ReadWrite`, `User.Read`, `offline_access`
