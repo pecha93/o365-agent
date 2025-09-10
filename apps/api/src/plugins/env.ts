@@ -21,6 +21,8 @@ const envSchema = z.object({
   MS_TENANT_ID: z.string().optional(),
   MS_CLIENT_ID: z.string().optional(),
   MS_CLIENT_SECRET: z.string().optional(),
+  MS_APP_ID: z.string().optional(), // альтернативное название для CLIENT_ID
+  MS_APP_SECRET: z.string().optional(), // альтернативное название для CLIENT_SECRET
   MS_REDIRECT_URI: z.string().default('http://localhost:4000/auth/ms/callback'),
   MS_SCOPES: z
     .string()

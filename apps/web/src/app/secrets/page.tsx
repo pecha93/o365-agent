@@ -129,6 +129,8 @@ export default function SecretsPage() {
     'MS_TENANT_ID',
     'MS_CLIENT_ID',
     'MS_CLIENT_SECRET',
+    'MS_APP_ID',
+    'MS_APP_SECRET',
   ];
 
   return (
