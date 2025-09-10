@@ -1,20 +1,21 @@
-import Fastify from "fastify";
-import corsPlugin from "./plugins/cors";
-import prismaPlugin from "./plugins/prisma";
-import rawPlugin from "./plugins/raw";
-import { healthRoutes } from "./routes/health";
-import { todoRoutes } from "./routes/todos";
-import { ingestRoutes } from "./routes/ingest";
-import { configTopRoutes } from "./routes/config-top";
-import { getEnv } from "./plugins/env";
-import { startCron } from "./services/cron";
+import Fastify from 'fastify';
+import corsPlugin from './plugins/cors';
+import prismaPlugin from './plugins/prisma';
+import rawPlugin from './plugins/raw';
+import { healthRoutes } from './routes/health';
+import { todoRoutes } from './routes/todos';
+import { ingestRoutes } from './routes/ingest';
+import { configTopRoutes } from './routes/config-top';
+import { adminRoutes } from './routes/admin';
+import { getEnv } from './plugins/env';
+import { startCron } from './services/cron';
 
 const env = getEnv();
 
 const app = Fastify({
   logger: {
-    level: "info",
-    transport: env.NODE_ENV === "development" ? { target: "pino-pretty" } : undefined,
+    level: 'info',
+    transport: env.NODE_ENV === 'development' ? { target: 'pino-pretty' } : undefined,
   },
 });
 
@@ -27,12 +28,13 @@ async function start() {
   await app.register(todoRoutes);
   await app.register(ingestRoutes);
   await app.register(configTopRoutes);
+  await app.register(adminRoutes);
 
   // Запускаем планировщик
   startCron(app.prisma);
 
   try {
-    await app.listen({ port: env.PORT, host: "0.0.0.0" });
+    await app.listen({ port: env.PORT, host: '0.0.0.0' });
     app.log.info(`API listening on :${env.PORT}`);
   } catch (err) {
     app.log.error(err);
