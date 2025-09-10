@@ -16,6 +16,9 @@ const envSchema = z.object({
 
   NOTION_TOKEN: z.string().optional(),
   NOTION_INBOX_DB: z.string().optional(),
+  NOTION_NAME_PROP: z.string().default('Name'),
+  NOTION_SOURCE_PROP: z.string().default('Source'),
+  NOTION_LINK_PROP: z.string().default('Link'),
 
   // Microsoft OAuth & Graph
   MS_TENANT_ID: z.string().optional(),

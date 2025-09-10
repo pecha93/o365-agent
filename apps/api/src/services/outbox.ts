@@ -17,7 +17,15 @@ export async function dispatchPending(prisma: PrismaClient) {
       } else if (item.type === OutboxType.NOTION_TASK) {
         const payload = item.payload as unknown as { title?: string; source?: string };
         const title = payload?.title ?? 'Task';
-        await sender.notion(title, { source: String(payload?.source ?? 'agent') });
+        const created = await sender.notion(title, { source: String(payload?.source ?? 'agent') });
+        if (created?.url) {
+          await prisma.outbox.update({
+            where: { id: item.id },
+            data: {
+              payload: { ...(item.payload as Record<string, unknown>), notionUrl: created.url },
+            },
+          });
+        }
       } else {
         // остальные типы позже
       }
