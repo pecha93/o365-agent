@@ -24,7 +24,9 @@ export async function getAccessToken(prisma: PrismaClient) {
   });
 
   if (!refreshToken) {
-    throw new Error('No refresh token available. Please re-authenticate.');
+    console.warn('No refresh token available. Using access token until expiration.');
+    // Возвращаем access token даже если он скоро истечет
+    return decrypt(acc.accessTokenEnc, env.ENCRYPTION_KEY);
   }
 
   const msal = await getMsalApp(prisma);

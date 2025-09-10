@@ -91,6 +91,8 @@ export async function authMsRoutes(app: FastifyInstance) {
       hasRefreshToken: !!token.refreshToken,
       refreshTokenType: typeof token.refreshToken,
       expiresIn: token.expiresIn,
+      tokenKeys: Object.keys(token),
+      accountKeys: token.account ? Object.keys(token.account) : 'no account',
     });
 
     // @ts-expect-error - refreshToken type not properly defined in MSAL
