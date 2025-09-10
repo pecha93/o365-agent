@@ -17,10 +17,15 @@ const envSchema = z.object({
   NOTION_TOKEN: z.string().optional(),
   NOTION_INBOX_DB: z.string().optional(),
 
-  // На будущее (Graph Delegated)
+  // Microsoft OAuth & Graph
   MS_TENANT_ID: z.string().optional(),
   MS_CLIENT_ID: z.string().optional(),
   MS_CLIENT_SECRET: z.string().optional(),
+  MS_REDIRECT_URI: z.string().default('http://localhost:4000/auth/ms/callback'),
+  MS_SCOPES: z
+    .string()
+    .default('offline_access Mail.ReadWrite Mail.Send Calendars.ReadWrite User.Read'),
+  ENCRYPTION_KEY: z.string().default('change-this-32-bytes-key-change-this'),
 
   // Таймзона для кронов
   TZ: z.string().default('Asia/Nicosia'),
