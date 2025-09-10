@@ -52,5 +52,21 @@ export async function getMsalApp(prisma: PrismaClient) {
 
 export async function getScopes(prisma: PrismaClient): Promise<string[]> {
   const env = await getEnvWithSecrets(prisma);
-  return (env.MS_SCOPES || '').split(/\s+/).filter(Boolean);
+  const scopes = (env.MS_SCOPES || '').split(/\s+/).filter(Boolean);
+
+  // Fallback на дефолтные scopes, если не настроены в базе данных
+  if (scopes.length === 0) {
+    const defaultScopes = [
+      'offline_access',
+      'Mail.ReadWrite',
+      'Mail.Send',
+      'Calendars.ReadWrite',
+      'User.Read',
+    ];
+    console.log('Using default scopes:', defaultScopes);
+    return defaultScopes;
+  }
+
+  console.log('Using scopes from database:', scopes);
+  return scopes;
 }
