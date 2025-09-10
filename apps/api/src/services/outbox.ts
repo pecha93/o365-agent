@@ -1,7 +1,8 @@
 import { PrismaClient, OutboxStatus, OutboxType } from '@prisma/client';
-import { sender } from './sender';
+import { createSender } from './sender';
 
 export async function dispatchPending(prisma: PrismaClient) {
+  const sender = createSender(prisma);
   const batch = await prisma.outbox.findMany({
     where: { status: OutboxStatus.PENDING },
     orderBy: { createdAt: 'asc' },

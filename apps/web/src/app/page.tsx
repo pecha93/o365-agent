@@ -62,8 +62,11 @@ export default function Page() {
       <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 16 }}>Todos</h1>
 
       <div style={{ marginBottom: 16 }}>
-        <a href="/agent" style={{ color: '#0066cc', textDecoration: 'underline' }}>
+        <a href="/agent" style={{ color: '#0066cc', textDecoration: 'underline', marginRight: 16 }}>
           → Agent Dashboard
+        </a>
+        <a href="/secrets" style={{ color: '#0066cc', textDecoration: 'underline' }}>
+          → Secrets Management
         </a>
       </div>
 

@@ -115,8 +115,22 @@ model LastSeen {
   updatedAt     DateTime @updatedAt
 }
 
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  msAccounts MsAccount[]
+  secrets    Secret[]
+}
+
 model MsAccount {
   id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   homeAccountId   String   @unique
   username        String?
   displayName     String?
@@ -125,6 +139,18 @@ model MsAccount {
   expiresAt       DateTime
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+}
+
+model Secret {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  key       String   // e.g., "TELEGRAM_BOT_TOKEN", "NOTION_TOKEN"
+  valueEnc  String   // encrypted value
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, key])
 }
 
 model Todo {
