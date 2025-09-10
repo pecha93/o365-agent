@@ -64,4 +64,11 @@ export async function adminRoutes(app: FastifyInstance) {
     await pullTodayCalendar(app.prisma);
     return { ok: true };
   });
+
+  app.post('/admin/digest/build', async (req) => {
+    const q = req.query as Record<string, unknown>;
+    const d = q?.date ? new Date(q.date as string) : new Date();
+    await (await import('../services/digest')).buildDailyDigests(app.prisma, d);
+    return { ok: true, date: d.toISOString().slice(0, 10) };
+  });
 }
