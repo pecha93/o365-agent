@@ -7,10 +7,11 @@ export async function authMsRoutes(app: FastifyInstance) {
   app.get('/auth/ms/login', async (req, reply) => {
     const env = getEnv();
     const msal = getMsalApp();
-    const authCodeUrl = await msal.getAuthCodeUrl({
+    const authCodeUrlParameters = {
       scopes: getScopes(),
       redirectUri: env.MS_REDIRECT_URI,
-    });
+    };
+    const authCodeUrl = await msal.getAuthCodeUrl(authCodeUrlParameters);
     reply.redirect(authCodeUrl);
   });
 
@@ -20,11 +21,12 @@ export async function authMsRoutes(app: FastifyInstance) {
     const code = (req.query as Record<string, unknown>).code as string;
     if (!code) return reply.code(400).send({ error: 'Missing code' });
 
-    const token = await msal.acquireTokenByCode({
+    const tokenRequest = {
       code,
       scopes: getScopes(),
       redirectUri: env.MS_REDIRECT_URI,
-    });
+    };
+    const token = await msal.acquireTokenByCode(tokenRequest);
 
     if (!token?.accessToken || !token?.account) {
       return reply.code(400).send({ error: 'Token acquisition failed' });

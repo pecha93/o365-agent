@@ -1,4 +1,4 @@
-import { ConfidentialClientApplication, Configuration } from 'msal';
+import { ConfidentialClientApplication, Configuration } from '@azure/msal-node';
 import { getEnv } from '../plugins/env';
 
 let app: ConfidentialClientApplication | null = null;
@@ -13,7 +13,7 @@ export function getMsalApp() {
       clientSecret: env.MS_CLIENT_SECRET || '',
     },
     system: { loggerOptions: { piiLoggingEnabled: false } },
-  } as Record<string, unknown>;
+  };
   app = new ConfidentialClientApplication(config);
   return app;
 }

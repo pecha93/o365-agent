@@ -21,6 +21,7 @@
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@azure/msal-node": "^3.7.3",
     "@fastify/cors": "^8.5.0",
     "@microsoft/microsoft-graph-client": "^3.0.7",
     "@microsoft/microsoft-graph-types": "^2.40.0",
@@ -29,7 +30,6 @@
     "fastify": "^4.28.1",
     "fastify-plugin": "^5.0.1",
     "fastify-raw-body": "^4.3.0",
-    "msal": "^1.4.18",
     "node-cron": "^4.2.1",
     "node-fetch": "2",
     "openai": "^5.19.1",
