@@ -57,7 +57,26 @@ export async function authMsRoutes(app: FastifyInstance) {
       scopes,
       redirectUri: env.MS_REDIRECT_URI,
     };
-    const token = await msal.acquireTokenByCode(tokenRequest);
+
+    let token;
+    try {
+      token = await msal.acquireTokenByCode(tokenRequest);
+    } catch (error) {
+      console.error('Token acquisition failed:', error);
+      if (error instanceof Error && error.message.includes('already redeemed')) {
+        return reply.type('text/html').send(`
+            <h3>Authorization code already used</h3>
+            <p>The authorization code has already been used. Please try again:</p>
+            <a href="/auth/ms/login" style="background: #0078d4; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">
+              Try Again
+            </a>
+          `);
+      }
+      return reply.code(400).send({
+        error: 'Token acquisition failed',
+        details: error instanceof Error ? error.message : String(error),
+      });
+    }
 
     if (!token?.accessToken || !token?.account) {
       return reply.code(400).send({ error: 'Token acquisition failed' });
