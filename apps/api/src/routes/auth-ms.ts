@@ -18,10 +18,17 @@ export async function authMsRoutes(app: FastifyInstance) {
       redirectUri: env.MS_REDIRECT_URI,
     });
 
-    const authCodeUrl = await msal.getAuthCodeUrl(authCodeUrlParameters);
-    console.log('Generated OAuth URL:', authCodeUrl);
-
-    reply.redirect(authCodeUrl);
+    try {
+      const authCodeUrl = await msal.getAuthCodeUrl(authCodeUrlParameters);
+      console.log('Generated OAuth URL:', authCodeUrl);
+      reply.redirect(authCodeUrl);
+    } catch (error) {
+      console.error('Error generating OAuth URL:', error);
+      reply.code(500).send({
+        error: 'Failed to generate OAuth URL',
+        details: error instanceof Error ? error.message : String(error),
+      });
+    }
   });
 
   app.get('/auth/ms/callback', async (req, reply) => {
@@ -64,6 +71,20 @@ export async function authMsRoutes(app: FastifyInstance) {
 
     const expiresAt = new Date(Date.now() + (token.expiresIn || 60) * 1000);
 
+    // Получаем или создаем пользователя
+    const user = await app.prisma.user.upsert({
+      where: { email: token.account.username! },
+      update: {
+        name: token.account.name,
+        isActive: true,
+      },
+      create: {
+        email: token.account.username!,
+        name: token.account.name,
+        isActive: true,
+      },
+    });
+
     const rec = await app.prisma.msAccount.upsert({
       where: { homeAccountId: token.account.homeAccountId! },
       update: {
@@ -74,6 +95,7 @@ export async function authMsRoutes(app: FastifyInstance) {
         expiresAt,
       },
       create: {
+        userId: user.id,
         homeAccountId: token.account.homeAccountId!,
         username: token.account.username,
         displayName: token.account.name,
