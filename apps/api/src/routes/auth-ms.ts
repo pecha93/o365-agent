@@ -11,6 +11,10 @@ export async function authMsRoutes(app: FastifyInstance) {
     const authCodeUrlParameters = {
       scopes,
       redirectUri: env.MS_REDIRECT_URI,
+      prompt: 'consent', // Принудительно запрашиваем согласие
+      extraQueryParameters: {
+        access_type: 'offline', // Запрашиваем offline access
+      },
     };
 
     console.log('Generating OAuth URL with parameters:', {

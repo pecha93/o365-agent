@@ -44,7 +44,13 @@ export async function getMsalApp(prisma: PrismaClient) {
       authority,
       clientSecret,
     },
-    system: { loggerOptions: { piiLoggingEnabled: false } },
+    system: {
+      loggerOptions: { piiLoggingEnabled: false },
+      allowNativeBroker: false, // Отключаем native broker
+    },
+    cache: {
+      cachePlugin: undefined, // Отключаем кеширование
+    },
   };
   app = new ConfidentialClientApplication(config);
   return app;
