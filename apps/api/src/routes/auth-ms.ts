@@ -84,8 +84,20 @@ export async function authMsRoutes(app: FastifyInstance) {
 
     const key = env.ENCRYPTION_KEY;
     const accessTokenEnc = encrypt(token.accessToken, key);
+
+    // Проверяем refresh token
+    console.log('Token received:', {
+      hasAccessToken: !!token.accessToken,
+      hasRefreshToken: !!token.refreshToken,
+      refreshTokenType: typeof token.refreshToken,
+      expiresIn: token.expiresIn,
+    });
+
     // @ts-expect-error - refreshToken type not properly defined in MSAL
     const refresh = token.refreshToken ? (token.refreshToken as string) : '';
+    if (!refresh) {
+      console.warn('No refresh token received from Microsoft');
+    }
     const refreshTokenEnc = encrypt(refresh, key);
 
     const expiresAt = new Date(Date.now() + (token.expiresIn || 60) * 1000);

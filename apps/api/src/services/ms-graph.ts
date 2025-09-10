@@ -16,13 +16,31 @@ export async function getAccessToken(prisma: PrismaClient) {
 
   // обновление по refreshToken
   const refreshToken = decrypt(acc.refreshTokenEnc, env.ENCRYPTION_KEY);
+
+  console.log('Attempting token refresh:', {
+    hasRefreshToken: !!refreshToken,
+    refreshTokenLength: refreshToken?.length || 0,
+    accountId: acc.homeAccountId,
+  });
+
+  if (!refreshToken) {
+    throw new Error('No refresh token available. Please re-authenticate.');
+  }
+
   const msal = await getMsalApp(prisma);
   const scopes = await getScopes(prisma);
   const refreshTokenRequest = {
     refreshToken,
     scopes,
   };
-  const resp = await msal.acquireTokenByRefreshToken(refreshTokenRequest);
+
+  let resp;
+  try {
+    resp = await msal.acquireTokenByRefreshToken(refreshTokenRequest);
+  } catch (error) {
+    console.error('Token refresh failed:', error);
+    throw error;
+  }
 
   if (!resp?.accessToken) throw new Error('Failed to refresh token');
 
